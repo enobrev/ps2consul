@@ -8,7 +8,7 @@
   "license": "MIT",
   "private": true,
   "bin": {
-    "download_app_config_flat": "src/tools/download_app_config.flat.js",
+    "download_app_config_flat": "src/tools/download_app_config_flat.js",
     "download_app_config": "src/tools/download_app_config.js"
   },
   "dependencies": {
