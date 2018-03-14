@@ -7,6 +7,10 @@
   "author": "Mark Armendariz <src@enobrev.com>",
   "license": "MIT",
   "private": true,
+  "bin": {
+    "download_app_config_flat": "src/tools/download_app_config.flat.js",
+    "download_app_config": "src/tools/download_app_config.js"
+  },
   "dependencies": {
     "async": "^2.6.0",
     "aws-parameter-store": "enobrev/aws-parameter-store",
