@@ -30,7 +30,6 @@ if (!APP) {
 
 ParameterStore.setRegion(AWS_REGION);
 ParameterStore.mergePathsAsObject([
-//    '/deploy/',
     `/${ENVIRONMENT}/shared`,
     `/${ENVIRONMENT}/${APP}`
 ], (oError, oConfig) => {

@@ -1,4 +1,12 @@
 {
+  "name": "ps2consul",
+  "version": "0.1.0",
+  "description": "Syncs AWS Parameter Store tree to Consul KV, utilizing SNS to stay up to date",
+  "main": "src/index.js",
+  "repository": "git@github.com:enobrev/ps2consul.git",
+  "author": "Mark Armendariz <src@enobrev.com>",
+  "license": "MIT",
+  "private": true,
   "dependencies": {
     "async": "^2.6.0",
     "aws-parameter-store": "enobrev/aws-parameter-store",
