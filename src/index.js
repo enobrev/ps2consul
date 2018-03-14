@@ -25,7 +25,7 @@
     }
 
     const ConfigServerLogger = new Logger({
-        service: 'ConfigServer',
+        service: 'PS2ConsulServer',
         console: false,
         syslog:  true
     });
@@ -58,14 +58,14 @@
                 const aArnMatches = sResponse.match(/<SubscriptionArn>([^<]+)<\/SubscriptionArn>/);
                 if (aArnMatches && aArnMatches.length > 1) {
                     const sSubscriptionArn = aArnMatches[1];
-                    ConfigServerLogger.d({action: 'ps-to-consul.confirm', arn: sSubscriptionArn, request_id: sRequestId});
+                    ConfigServerLogger.d({action: 'ps2consul.confirm', arn: sSubscriptionArn, request_id: sRequestId});
                     //console.log(sSubscriptionArn);
                 }
             });
         });
 
         oRequest.on('error', oError => {
-            ConfigServerLogger.e({action: 'ps-to-consul.request.error', error: oError});
+            ConfigServerLogger.e({action: 'ps2consul.request.error', error: oError});
         });
 
         oRequest.end();
@@ -82,7 +82,7 @@
             oMessage = JSON.parse(sMessage);
         } catch (oError) {
             ConfigServerLogger.e({
-                action:     'ps-to-consul.request.Notification.json_parse.error',
+                action:     'ps2consul.request.Notification.json_parse.error',
                 error:      {
                     name:    oError.name,
                     message: oError.message
@@ -94,7 +94,7 @@
         }
 
         ConfigServerLogger.d({
-            action:     'ps-to-consul.request.Notification.change',
+            action:     'ps2consul.request.Notification.change',
             parameter:  oMessage.detail.name,
             type:       oMessage.detail.operation
         });
@@ -105,7 +105,7 @@
         const sEnvironment = aKey.shift();
 
         if (sEnvironment !== ENVIRONMENT) {
-            ConfigServerLogger.d({action: 'ps-to-consul.request.Notification.ignore'});
+            ConfigServerLogger.d({action: 'ps2consul.request.Notification.ignore'});
             return fCallback();
         }
 
@@ -115,19 +115,16 @@
                 return fCallback(oError);
             }
 
-            console.log(APPS);
-
             if (aKey[0] === 'shared') {
                 async.each(APPS, (sApp, fAsyncCallback) => {
                     let aAppKey = aKey.slice();
                     aAppKey.splice(0, 1, sApp);
                     const sAppKey = aAppKey.join('/');
-                    console.log(sAppKey);
                     consul.kv.set(sAppKey, mValue, (oError, oResult) => {
                         if (oError) {
-                            ConfigServerLogger.e({action: 'ps-to-consul.request.consul', key: sKey, error: oError});
+                            ConfigServerLogger.e({action: 'ps2consul.request.consul', key: sKey, error: oError});
                         } else {
-                            ConfigServerLogger.d({action: 'ps-to-consul.request.consul', key: sKey, result: oResult });
+                            ConfigServerLogger.d({action: 'ps2consul.request.consul', key: sKey, result: oResult });
                         }
 
                         fAsyncCallback(oError);
@@ -137,9 +134,9 @@
                 const sLocalKey = aKey.join('/');
                 consul.kv.set(sLocalKey, mValue, (oError, oResult) => {
                     if (oError) {
-                        ConfigServerLogger.e({action: 'ps-to-consul.request.consul', key: sKey, error: oError});
+                        ConfigServerLogger.e({action: 'ps2consul.request.consul', key: sKey, error: oError});
                     } else {
-                        ConfigServerLogger.d({action: 'ps-to-consul.request.consul', key: sKey, result: oResult });
+                        ConfigServerLogger.d({action: 'ps2consul.request.consul', key: sKey, result: oResult });
                     }
 
                     fCallback(oError);
@@ -152,7 +149,7 @@
         let aBody    = [];
 
         oRequest.on('error', oError => {
-            ConfigServerLogger.e({action: 'ps-to-consul.request.parse.error', error: {
+            ConfigServerLogger.e({action: 'ps2consul.request.parse.error', error: {
                 name:    oError.name,
                 message: oError.message
             }});
@@ -170,7 +167,7 @@
                 oBody = JSON.parse(Buffer.concat(aBody).toString());
             } catch (oError) {
                 ConfigServerLogger.e({
-                    action:     'ps-to-consul.request.json_parse.error',
+                    action:     'ps2consul.request.json_parse.error',
                     error:      {
                         name:    oError.name,
                         message: oError.message
@@ -198,7 +195,7 @@
 
         if (oHeaders && oHeaders['x-amz-sns-message-type'] === 'SubscriptionConfirmation') {
             ConfigServerLogger.d({
-                action: 'ps-to-consul.request.SubscriptionConfirmation',
+                action: 'ps2consul.request.SubscriptionConfirmation',
                 method: sMethod,
                 url:    sUrl,
                 id:     oHeaders['x-amz-sns-message-id'],
@@ -220,7 +217,7 @@
             return;
         } else if (oHeaders && oHeaders['x-amz-sns-message-type'] === 'Notification') {
             ConfigServerLogger.d({
-                action:         'ps-to-consul.request.Notification',
+                action:         'ps2consul.request.Notification',
                 method:         sMethod,
                 url:            sUrl,
                 id:             oHeaders['x-amz-sns-message-id'],
@@ -246,7 +243,7 @@
             oResponse.end();
             return;
         } else {
-            ConfigServerLogger.w({action: 'ps-to-consul.request.weird', method: sMethod, url: sUrl});
+            ConfigServerLogger.w({action: 'ps2consul.request.weird', method: sMethod, url: sUrl});
         }
 
         oResponse.writeHead(202, {'Content-Type': 'text/plain'});
@@ -254,16 +251,16 @@
     };
 
 
-    ConfigServerLogger.n({action: 'ps-to-consul.pre-sync'});
+    ConfigServerLogger.n({action: 'ps2consul.pre-sync'});
 
     // Download All App Configs and then Start the Server
     ParameterStore.objectFromPath(`/${ENVIRONMENT}`, (oError, oConfig) => {
         if (oError) {
-            console.error('ERROR', oError);
+            ConfigServerLogger.e({action: 'ps2consul.sync.error', error: oError});
             process.exit(1);
         }
 
-        ConfigServerLogger.n({action: 'ps-to-consul.sync'});
+        ConfigServerLogger.n({action: 'ps2consul.sync'});
 
         APPS   = Object.keys(oConfig).filter(sApp => sApp !== 'shared');
         SHARED = oConfig.shared;
@@ -279,27 +276,27 @@
         Object.keys(oSorted).map(sKey => {
             consul.kv.set(sKey, oSorted[sKey], (oError, oResult) => {
                 if (oError) {
-                    console.error('Error', oError);
+                    ConfigServerLogger.e({action: 'ps2consul.sync.error', error: oError});
                 }
             });
         });
 
-        ConfigServerLogger.n({action: 'ps-to-consul.synced'});
+        ConfigServerLogger.n({action: 'ps2consul.synced'});
 
-        http.createServer(handleHTTPRequest).listen(oConfig.config.server.port);
+        http.createServer(handleHTTPRequest).listen(oConfig.ps2consul.server.port);
 
         let ping = () => {
             ConfigServerLogger.i({
-                action:    'ps-to-consul.ping',
+                action:    'ps2consul.ping',
                 hostname:   os.hostname(),
                 pid:        process.pid,
-                port:       oConfig.config.server.port
+                port:       oConfig.ps2consul.server.port
             });
         };
 
         ping();
-        setInterval(ping, oConfig.config.server.ping);
+        setInterval(ping, oConfig.ps2consul.server.ping);
 
-        ConfigServerLogger.n({action: 'ps-to-consul.init'});
+        ConfigServerLogger.n({action: 'ps2consul.init'});
     });
 
