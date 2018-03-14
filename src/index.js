@@ -251,7 +251,7 @@
     };
 
 
-    ConfigServerLogger.n({action: 'ps2consul.pre-sync'});
+    ConfigServerLogger.n({action: 'ps2consul.pre-sync', environment: ENVIRONMENT});
 
     // Download All App Configs and then Start the Server
     ParameterStore.objectFromPath(`/${ENVIRONMENT}`, (oError, oConfig) => {
@@ -260,7 +260,7 @@
             process.exit(1);
         }
 
-        ConfigServerLogger.n({action: 'ps2consul.sync'});
+        ConfigServerLogger.n({action: 'ps2consul.sync', environment: ENVIRONMENT});
 
         APPS   = Object.keys(oConfig).filter(sApp => sApp !== 'shared');
         SHARED = oConfig.shared;
@@ -281,7 +281,7 @@
             });
         });
 
-        ConfigServerLogger.n({action: 'ps2consul.synced'});
+        ConfigServerLogger.n({action: 'ps2consul.synced', environment: ENVIRONMENT, apps: APPS});
 
         http.createServer(handleHTTPRequest).listen(oConfig.ps2consul.server.port);
 
@@ -297,6 +297,6 @@
         ping();
         setInterval(ping, oConfig.ps2consul.server.ping);
 
-        ConfigServerLogger.n({action: 'ps2consul.init'});
+        ConfigServerLogger.n({action: 'ps2consul.init', environment: ENVIRONMENT, apps: APPS});
     });
 
