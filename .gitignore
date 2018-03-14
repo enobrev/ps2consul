@@ -1,0 +1,5 @@
+.idea
+CONFIG.json
+NEW_KEYS.json
+REMOVE_KEYS.json
+node_modules
