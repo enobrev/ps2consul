@@ -109,9 +109,9 @@
             return fCallback();
         }
 
-
         ParameterStore.getValue(sKey, (oError, mValue) => {
             if (oError) {
+                ConfigServerLogger.e({action: 'ps2consul.request.parameter_store.get', key: sKey, error: oError});
                 return fCallback(oError);
             }
 
