@@ -7,7 +7,7 @@ exports.flattenObject = ob => {
         if (!ob.hasOwnProperty(i)) continue;
 
         if (Array.isArray(ob[i])) {
-            toReturn[i] = ob[i];
+            toReturn[i] = ob[i].join(',');
         } else if ((typeof ob[i]) === 'object') {
             let flatObject = exports.flattenObject(ob[i]);
             for (let x in flatObject) {
