@@ -35,6 +35,20 @@
     let APPS    = [];
     let SHARED  = {};
 
+    const preInit = () => {
+        consul.status.leader(oError => {
+            if (oError) {
+                ConfigServerLogger.w('consul.leader_not_available');
+                setTimeout(preInit, 1000);
+            } else {
+                ConfigServerLogger.d('consul.leader_available');
+                init();
+            }
+        });
+    };
+
+    preInit();
+
     // https://docs.aws.amazon.com/sns/latest/dg/SendMessageToHttp.html#SendMessageToHttp.prepare
     const handleSubscriptionConfirmation = sSubscribeUrl => {
         const oSubscribeUrl = new URL(sSubscribeUrl);
@@ -250,53 +264,39 @@
         oResponse.end();
     };
 
+    const init = () => {
+        ConfigServerLogger.n({action: 'ps2consul.pre-sync', environment: ENVIRONMENT});
 
-    ConfigServerLogger.n({action: 'ps2consul.pre-sync', environment: ENVIRONMENT});
+        // Download All App Configs and then Start the Server
+        ParameterStore.objectFromPath(`/${ENVIRONMENT}`, (oError, oConfig) => {
+            if (oError) {
+                ConfigServerLogger.e({action: 'ps2consul.sync.error', error: oError});
+                process.exit(1);
+            }
 
-    // Download All App Configs and then Start the Server
-    ParameterStore.objectFromPath(`/${ENVIRONMENT}`, (oError, oConfig) => {
-        if (oError) {
-            ConfigServerLogger.e({action: 'ps2consul.sync.error', error: oError});
-            process.exit(1);
-        }
+            ConfigServerLogger.n({action: 'ps2consul.sync', environment: ENVIRONMENT});
 
-        ConfigServerLogger.n({action: 'ps2consul.sync', environment: ENVIRONMENT});
+            APPS   = Object.keys(oConfig).filter(sApp => sApp !== 'shared');
+            SHARED = oConfig.shared;
 
-        APPS   = Object.keys(oConfig).filter(sApp => sApp !== 'shared');
-        SHARED = oConfig.shared;
-
-        let oMergedConfig = {};
-        APPS.forEach(sApp => {
-            oMergedConfig[sApp] = DeepMerge.all([SHARED, oConfig[sApp]]);
-        });
-
-        const oFlattened = flattenObject(oMergedConfig);
-        const oSorted    = sortObject(oFlattened);
-
-        Object.keys(oSorted).map(sKey => {
-            consul.kv.set(sKey, oSorted[sKey], (oError, oResult) => {
-                if (oError) {
-                    ConfigServerLogger.e({action: 'ps2consul.sync.error', error: oError});
-                }
+            let oMergedConfig = {};
+            APPS.forEach(sApp => {
+                oMergedConfig[sApp] = DeepMerge.all([SHARED, oConfig[sApp]]);
             });
-        });
 
-        ConfigServerLogger.n({action: 'ps2consul.synced', environment: ENVIRONMENT, apps: APPS});
+            const oFlattened = flattenObject(oMergedConfig);
+            const oSorted    = sortObject(oFlattened);
 
-        http.createServer(handleHTTPRequest).listen(oConfig.ps2consul.server.port);
-
-        let ping = () => {
-            ConfigServerLogger.i({
-                action:    'ps2consul.ping',
-                hostname:   os.hostname(),
-                pid:        process.pid,
-                port:       oConfig.ps2consul.server.port
+            Object.keys(oSorted).map(sKey => {
+                consul.kv.set(sKey, oSorted[sKey], (oError, oResult) => {
+                    if (oError) {
+                        ConfigServerLogger.e({action: 'ps2consul.sync.error', error: oError});
+                    }
+                });
             });
-        };
 
-        ping();
-        setInterval(ping, oConfig.ps2consul.server.ping);
+            http.createServer(handleHTTPRequest).listen(oConfig.ps2consul.server.port);
 
-        ConfigServerLogger.n({action: 'ps2consul.init', environment: ENVIRONMENT, apps: APPS});
-    });
-
+            ConfigServerLogger.n({action: 'ps2consul.init', environment: ENVIRONMENT, apps: APPS});
+        });
+    };
