@@ -6,7 +6,9 @@ exports.flattenObject = ob => {
     for (let i in ob) {
         if (!ob.hasOwnProperty(i)) continue;
 
-        if ((typeof ob[i]) === 'object') {
+        if (Array.isArray(ob[i])) {
+            toReturn[i] = ob[i];
+        } else if ((typeof ob[i]) === 'object') {
             let flatObject = exports.flattenObject(ob[i]);
             for (let x in flatObject) {
                 if (!flatObject.hasOwnProperty(x)) continue;
