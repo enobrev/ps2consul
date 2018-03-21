@@ -12,11 +12,11 @@
     "download_app_config": "src/tools/download_app_config.js"
   },
   "dependencies": {
-    "async": "^2.6.0",
+    "async": "2.6.0",
     "aws-parameter-store": "enobrev/aws-parameter-store",
-    "consul": "^0.30.0",
-    "deepmerge": "^2.1.0",
+    "consul": "0.30.0",
+    "deepmerge": "2.1.0",
     "enobrev-node-tools": "enobrev/node-tools",
-    "slack-node": "^0.1.8"
+    "slack-node": "0.1.8"
   }
 }

@@ -19,7 +19,7 @@ assert-plus@1.0.0, assert-plus@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/assert-plus/-/assert-plus-1.0.0.tgz#f12e0f3c5d77b0b1cdd9146942e4e96c1e4dd525"
 
-async@^2.6.0:
+async@2.6.0, async@^2.6.0:
   version "2.6.0"
   resolved "https://registry.yarnpkg.com/async/-/async-2.6.0.tgz#61a29abb6fcc026fea77e56d1c6ec53a795951f4"
   dependencies:
@@ -115,7 +115,7 @@ combined-stream@1.0.6, combined-stream@~1.0.5:
   dependencies:
     delayed-stream "~1.0.0"
 
-consul@^0.30.0:
+consul@0.30.0:
   version "0.30.0"
   resolved "https://registry.yarnpkg.com/consul/-/consul-0.30.0.tgz#8ae6719b46674dd15a95b7614881bfc5b9e4eac3"
   dependencies:
@@ -141,7 +141,7 @@ dashdash@^1.12.0:
   dependencies:
     assert-plus "^1.0.0"
 
-deepmerge@^2.1.0:
+deepmerge@2.1.0, deepmerge@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/deepmerge/-/deepmerge-2.1.0.tgz#511a54fff405fc346f0240bb270a3e9533a31102"
 
@@ -160,7 +160,7 @@ enobrev-node-tools@enobrev/node-tools:
   resolved "https://codeload.github.com/enobrev/node-tools/tar.gz/25c81084dfd4963ca10fea12c48c8851788b45b1"
   dependencies:
     winston "^2.4.1"
-    winston-syslog "1.2.6"
+    winston-syslog "^2.0.0"
 
 events@^1.1.1:
   version "1.1.1"
@@ -383,7 +383,7 @@ sax@>=0.6.0:
   version "1.2.4"
   resolved "https://registry.yarnpkg.com/sax/-/sax-1.2.4.tgz#2816234e2378bddc4e5354fab5caa895df7100d9"
 
-slack-node@^0.1.8:
+slack-node@0.1.8:
   version "0.1.8"
   resolved "https://registry.yarnpkg.com/slack-node/-/slack-node-0.1.8.tgz#cda98de8681485b301dc6742ddc3897117fad349"
   dependencies:
@@ -470,15 +470,6 @@ when@^3.7.7:
 winston-syslog@1.2.6:
   version "1.2.6"
   resolved "https://registry.yarnpkg.com/winston-syslog/-/winston-syslog-1.2.6.tgz#4e7990ed0a9f1932187ddd6ec9e038357980961f"
-  dependencies:
-    cycle "~1.0.3"
-    glossy "0.x.x"
-  optionalDependencies:
-    unix-dgram "~0.2.1"
-
-winston-syslog@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/winston-syslog/-/winston-syslog-2.0.0.tgz#e41330ecffe37c1971e5d1144eff9ace32d5ba2c"
   dependencies:
     cycle "~1.0.3"
     glossy "0.x.x"
