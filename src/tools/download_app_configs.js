@@ -15,10 +15,10 @@ if (!AWS_REGION) {
     throw new Error('AWS_REGION needs to be set')
 }
 
-const APPS = process.argv.slice(2) || [];
+const APPS = process.argv.slice(2).shift() || [];
 const PATH = (process.argv.length > 3 && process.argv.slice(3).shift().replace(/[/+]$/, '')) || '.';
 
-let aFilter = APPS.split(',');
+let aFilter = APPS ? APPS.split(',') : [];
 
 ParameterStore.setRegion(AWS_REGION);
 ParameterStore.objectFromPath(`/${ENVIRONMENT}`, (oError, oConfig) => {
