@@ -15,10 +15,8 @@ if (!AWS_REGION) {
     throw new Error('AWS_REGION needs to be set')
 }
 
-const APPS = process.argv.slice(2).shift() || [];
-const PATH = (process.argv.length > 3 && process.argv.slice(3).shift().replace(/[/+]$/, '')) || '.';
-
-let aFilter = APPS ? APPS.split(',') : [];
+const PATH = (process.argv.length > 2 && process.argv.slice(2).shift().replace(/[/+]$/, '')) || '.';
+const APPS = (process.argv.length > 3 && process.argv.slice(3).shift().split(','))           || [];
 
 ParameterStore.setRegion(AWS_REGION);
 ParameterStore.objectFromPath(`/${ENVIRONMENT}`, (oError, oConfig) => {
@@ -31,7 +29,7 @@ ParameterStore.objectFromPath(`/${ENVIRONMENT}`, (oError, oConfig) => {
     const oShared = oConfig.shared;
 
     aApps.forEach(sApp => {
-        if (aFilter.length > 0 && aFilter.indexOf(sApp) === -1) {
+        if (APPS.length > 0 && APPS.indexOf(sApp) === -1) {
             return;
         }
 
