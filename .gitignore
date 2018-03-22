@@ -3,3 +3,7 @@ CONFIG.json
 NEW_KEYS.json
 REMOVE_KEYS.json
 node_modules
+/src/tools/CONFIG-production.json
+/src/tools/CONFIG-enobrev.json
+/src/tools/CONFIG-development.json
+/src/tools/AWS_CONFIG.json

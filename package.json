@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "async": "2.6.0",
-    "aws-parameter-store": "https://github.com/enobrev/aws-parameter-store.git#793ae91d1eef113cbf082d43e9b2757d73ca2709",
+    "aws-parameter-store": "0.1.1",
     "consul": "0.30.0",
     "deepmerge": "2.1.0",
     "enobrev-node-tools": "https://github.com/enobrev/node-tools.git#35ab01dd0bb6c91bf62f5620fa8f6425d9bcdac2",

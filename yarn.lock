@@ -33,9 +33,9 @@ asynckit@^0.4.0:
   version "0.4.0"
   resolved "https://registry.yarnpkg.com/asynckit/-/asynckit-0.4.0.tgz#c79ed97f7f34cb8f2ba1bc9790bcc366474b4b79"
 
-"aws-parameter-store@https://github.com/enobrev/aws-parameter-store.git#793ae91d1eef113cbf082d43e9b2757d73ca2709":
+aws-parameter-store@0.1.1:
   version "0.1.1"
-  resolved "https://github.com/enobrev/aws-parameter-store.git#793ae91d1eef113cbf082d43e9b2757d73ca2709"
+  resolved "https://registry.yarnpkg.com/aws-parameter-store/-/aws-parameter-store-0.1.1.tgz#7dfc569b039c5aeed91035b976a1b07458cf4513"
   dependencies:
     async "2.6.0"
     aws-sdk "2.212.1"
@@ -156,16 +156,8 @@ ecc-jsbn@~0.1.1:
   dependencies:
     jsbn "~0.1.0"
 
-"enobrev-node-tools@https://github.com/enobrev/node-tools":
-  version "0.1.1"
-  resolved "https://github.com/enobrev/node-tools#35ab01dd0bb6c91bf62f5620fa8f6425d9bcdac2"
-  dependencies:
-    winston "2.4.1"
-    winston-syslog "1.2.6"
-
 "enobrev-node-tools@https://github.com/enobrev/node-tools.git#35ab01dd0bb6c91bf62f5620fa8f6425d9bcdac2":
   version "0.1.1"
-  uid "35ab01dd0bb6c91bf62f5620fa8f6425d9bcdac2"
   resolved "https://github.com/enobrev/node-tools.git#35ab01dd0bb6c91bf62f5620fa8f6425d9bcdac2"
   dependencies:
     winston "2.4.1"
