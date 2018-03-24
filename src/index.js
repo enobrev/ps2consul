@@ -1,5 +1,3 @@
-    const fs             = require('fs');
-    const os             = require('os');
     const {URL}          = require('url');
     const http           = require('http');
     const https          = require('https');
@@ -7,7 +5,7 @@
     const consul         = require('consul')();
     const DeepMerge      = require('deepmerge');
     const ParameterStore = require('aws-parameter-store').default;
-    const {Logger}       = require('enobrev-node-tools');
+    const {Logger}       = require('winston-rsyslog-cee');
     const {
         flattenObject,
         sortObject
