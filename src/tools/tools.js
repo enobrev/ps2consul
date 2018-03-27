@@ -1,6 +1,6 @@
 
 // https://gist.github.com/penguinboy/762197
-exports.flattenObject = ob => {
+exports.flattenObject = (ob, div = '/') => {
     let toReturn = {};
 
     for (let i in ob) {
@@ -9,11 +9,11 @@ exports.flattenObject = ob => {
         if (Array.isArray(ob[i])) {
             toReturn[i] = ob[i].join(',');
         } else if ((typeof ob[i]) === 'object') {
-            let flatObject = exports.flattenObject(ob[i]);
+            let flatObject = exports.flattenObject(ob[i], div);
             for (let x in flatObject) {
                 if (!flatObject.hasOwnProperty(x)) continue;
 
-                toReturn[i + '/' + x] = flatObject[x];
+                toReturn[i + div + x] = flatObject[x];
             }
         } else {
             toReturn[i] = ob[i] + '';
