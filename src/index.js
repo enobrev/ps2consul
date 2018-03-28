@@ -121,40 +121,81 @@
             return fCallback();
         }
 
-        ParameterStore.getValue(sKey, (oError, mValue) => {
-            if (oError) {
-                ConfigServerLogger.e({action: 'ps2consul.request.parameter_store.get', key: sKey, error: oError});
-                return fCallback(oError);
-            }
-
-            if (aKey[0] === 'shared') {
-                async.each(APPS, (sApp, fAsyncCallback) => {
-                    let aAppKey = aKey.slice();
-                    aAppKey.splice(0, 1, sApp);
-                    const sAppKey = aAppKey.join('/');
-                    consul.kv.set(sAppKey, mValue, (oError, oResult) => {
-                        if (oError) {
-                            ConfigServerLogger.e({action: 'ps2consul.request.consul', key: sKey, error: oError});
-                        } else {
-                            ConfigServerLogger.d({action: 'ps2consul.request.consul', key: sKey, result: oResult });
-                        }
-
-                        fAsyncCallback(oError);
-                    });
-                }, fCallback)
-            } else {
-                const sLocalKey = aKey.join('/');
-                consul.kv.set(sLocalKey, mValue, (oError, oResult) => {
+        switch(oMessage.detail.operation) {
+            case 'Create':
+            case 'Update':
+                ParameterStore.getValue(sKey, (oError, mValue) => {
                     if (oError) {
-                        ConfigServerLogger.e({action: 'ps2consul.request.consul', key: sKey, error: oError});
-                    } else {
-                        ConfigServerLogger.d({action: 'ps2consul.request.consul', key: sKey, result: oResult });
+                        ConfigServerLogger.e({action: 'ps2consul.request.parameter_store.get', key: sKey, error: oError});
+                        return fCallback(oError);
                     }
 
-                    fCallback(oError);
+                    if (aKey[0] === 'shared') {
+                        async.each(APPS, (sApp, fAsyncCallback) => {
+                            let aAppKey = aKey.slice();
+                            aAppKey.splice(0, 1, sApp);
+                            const sAppKey = aAppKey.join('/');
+                            consul.kv.set(sAppKey, mValue, (oError, oResult) => {
+                                if (oError) {
+                                    ConfigServerLogger.e({action: 'ps2consul.request.consul.set', key: sKey, error: oError});
+                                } else {
+                                    ConfigServerLogger.d({action: 'ps2consul.request.consul.set', key: sKey, result: oResult });
+                                }
+
+                                fAsyncCallback(oError);
+                            });
+                        }, fCallback)
+                    } else {
+                        const sLocalKey = aKey.join('/');
+                        consul.kv.set(sLocalKey, mValue, (oError, oResult) => {
+                            if (oError) {
+                                ConfigServerLogger.e({action: 'ps2consul.request.consul.set', key: sKey, error: oError});
+                            } else {
+                                ConfigServerLogger.d({action: 'ps2consul.request.consul.set', key: sKey, result: oResult });
+                            }
+
+                            fCallback(oError);
+                        });
+                    }
                 });
-            }
-        })
+                break;
+
+            case 'Delete':
+                if (aKey[0] === 'shared') {
+                    async.each(APPS, (sApp, fAsyncCallback) => {
+                        let aAppKey = aKey.slice();
+                        aAppKey.splice(0, 1, sApp);
+                        const sAppKey = aAppKey.join('/');
+                        consul.kv.del(sAppKey, oError => {
+                            if (oError) {
+                                ConfigServerLogger.e({action: 'ps2consul.request.consul.del', key: sKey, error: oError});
+                            } else {
+                                ConfigServerLogger.d({action: 'ps2consul.request.consul.del', key: sKey });
+                            }
+
+                            fAsyncCallback(oError);
+                        });
+                    }, fCallback)
+                } else {
+                    const sLocalKey = aKey.join('/');
+                    consul.kv.del(sLocalKey, oError => {
+                        if (oError) {
+                            ConfigServerLogger.e({action: 'ps2consul.request.consul.del', key: sKey, error: oError});
+                        } else {
+                            ConfigServerLogger.d({action: 'ps2consul.request.consul.del', key: sKey });
+                        }
+
+                        fCallback(oError);
+                    });
+                }
+                break;
+
+            default:
+                ConfigServerLogger.e({action: 'ps2consul.request.consul.unknown_operation', key: sKey, type: oMessage.detail.operation});
+                fCallback();
+                break;
+        }
+
     };
 
     const parseRequestBody = (oRequest, fCallback) => {
