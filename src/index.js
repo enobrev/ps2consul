@@ -240,6 +240,12 @@
             parseRequestBody(oRequest, (oError, oBody) => {
                 if (oBody) {
                     handleNotification(oBody.Message, oError => {
+                        if (oError) {
+                            oResponse.writeHead(500, {'Content-Type': 'text/plain'});
+                            oResponse.end();
+                            return;
+                        }
+
                         oResponse.writeHead(202, {'Content-Type': 'text/plain'});
                         oResponse.end();
                     });
