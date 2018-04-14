@@ -308,7 +308,7 @@
                 });
             });
 
-            http.createServer(handleHTTPRequest).listen(oConfig.ps2consul.server.port);
+            http.createServer(handleHTTPRequest).listen(oConfig.ports.ps2consul);
 
             ConfigServerLogger.n({action: 'init', environment: ENVIRONMENT});
             ConfigServerLogger.summary();
