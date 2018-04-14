@@ -14,9 +14,9 @@ if (!AWS_REGION) {
     throw new Error('AWS_REGION needs to be set')
 }
 
-const PATH = (process.argv.length > 3 && process.argv.slice(3).shift().replace(/[/+]$/, '')) || '.';
+const PATH = (process.argv.length > 2 && process.argv.slice(2).shift().replace(/[/+]$/, '')) || '.';
 
-ParameterStore.set(AWS_REGION);
+ParameterStore.setRegion(AWS_REGION);
 ParameterStore.mergePathsAsObject([
     '/deploy/',
     `/${ENVIRONMENT}`
