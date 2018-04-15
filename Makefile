@@ -3,6 +3,7 @@
 install: dependencies
 
 deploy: pull dependencies
+	node src/install.js
 
 githook: pull dependencies
 

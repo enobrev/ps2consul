@@ -461,7 +461,7 @@ when@^3.7.7:
   version "3.7.8"
   resolved "https://registry.yarnpkg.com/when/-/when-3.7.8.tgz#c7130b6a7ea04693e842cdc9e7a1f2aa39a39f82"
 
-winston-rsyslog-cee@^0.1.2:
+winston-rsyslog-cee@0.1.2:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/winston-rsyslog-cee/-/winston-rsyslog-cee-0.1.2.tgz#a69837f82ec4ba197872ebfde0bc00eae4e56c05"
   dependencies:
