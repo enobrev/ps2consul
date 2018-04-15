@@ -36,10 +36,10 @@
     const preInit = () => {
         consul.status.leader(oError => {
             if (oError) {
-                ConfigServerLogger.w('consul.leader_not_available');
+                ConfigServerLogger.w('consul.leader', {'available': false});
                 setTimeout(preInit, 1000);
             } else {
-                ConfigServerLogger.d('consul.leader_available');
+                ConfigServerLogger.w('consul.leader', {'available': true});
                 init();
             }
         });
@@ -70,14 +70,14 @@
                 const aArnMatches = sResponse.match(/<SubscriptionArn>([^<]+)<\/SubscriptionArn>/);
                 if (aArnMatches && aArnMatches.length > 1) {
                     const sSubscriptionArn = aArnMatches[1];
-                    oLogger.d({action: 'confirm', arn: sSubscriptionArn, request_id: sRequestId});
+                    oLogger.d('response', {status: 'confirmed', arn: sSubscriptionArn, request_id: sRequestId});
                     //console.log(sSubscriptionArn);
                 }
             });
         });
 
         oRequest.on('error', oError => {
-            oLogger.e({action: 'request.error', error: oError});
+            oLogger.e('request', {status: 'error', error: oError});
         });
 
         oRequest.end();
@@ -94,7 +94,9 @@
             oMessage = JSON.parse(sMessage);
         } catch (oError) {
             oLogger.e({
-                action:     'request.Notification.json_parse.error',
+                action:     'request.Notification',
+                handler: 'json_parse',
+                status: 'error',
                 error:      {
                     name:    oError.name,
                     message: oError.message
@@ -106,7 +108,7 @@
         }
 
         oLogger.d({
-            action:     'request.Notification.change',
+            action:     'request.Notification',
             parameter:  oMessage.detail.name,
             type:       oMessage.detail.operation
         });
@@ -117,7 +119,7 @@
         const sEnvironment = aKey.shift();
 
         if (sEnvironment !== ENVIRONMENT) {
-            oLogger.d({action: 'request.Notification.ignore'});
+            oLogger.d('request.Notification', {status: 'ignore', why: 'Environment Mismatch'});
             return fCallback();
         }
 
@@ -126,7 +128,7 @@
             case 'Update':
                 ParameterStore.getValue(sKey, (oError, mValue) => {
                     if (oError) {
-                        oLogger.e({action: 'request.parameter_store.get', key: sKey, error: oError});
+                        oLogger.e('parameter_store', {command: 'getValue', status: 'error', key: sKey, error: oError});
                         return fCallback(oError);
                     }
 
@@ -137,9 +139,9 @@
                             const sAppKey = aAppKey.join('/');
                             consul.kv.set(sAppKey, mValue, (oError, oResult) => {
                                 if (oError) {
-                                    oLogger.e({action: 'request.consul.set', key: sKey, error: oError});
+                                    oLogger.e('consul.kv', {command: 'set', key: sKey, error: oError});
                                 } else {
-                                    oLogger.d({action: 'request.consul.set', key: sKey, result: oResult });
+                                    oLogger.d('consul.kv', {command: 'set', key: sKey, result: oResult });
                                 }
 
                                 fAsyncCallback(oError);
@@ -149,9 +151,9 @@
                         const sLocalKey = aKey.join('/');
                         consul.kv.set(sLocalKey, mValue, (oError, oResult) => {
                             if (oError) {
-                                oLogger.e({action: 'request.consul.set', key: sKey, error: oError});
+                                oLogger.e('consul.kv', {command: 'set', key: sKey, error: oError});
                             } else {
-                                oLogger.d({action: 'request.consul.set', key: sKey, result: oResult });
+                                oLogger.d('consul.kv', {command: 'set', key: sKey, result: oResult });
                             }
 
                             fCallback(oError);
@@ -168,9 +170,9 @@
                         const sAppKey = aAppKey.join('/');
                         consul.kv.del(sAppKey, oError => {
                             if (oError) {
-                                oLogger.e({action: 'request.consul.del', key: sKey, error: oError});
+                                oLogger.e('consul.kv', {command: 'del', key: sKey, error: oError});
                             } else {
-                                oLogger.d({action: 'request.consul.del', key: sKey });
+                                oLogger.d('consul.kv', {command: 'del', key: sKey });
                             }
 
                             fAsyncCallback(oError);
@@ -180,9 +182,9 @@
                     const sLocalKey = aKey.join('/');
                     consul.kv.del(sLocalKey, oError => {
                         if (oError) {
-                            oLogger.e({action: 'request.consul.del', key: sKey, error: oError});
+                            oLogger.e('consul.kv', {command: 'del', key: sKey, error: oError});
                         } else {
-                            oLogger.d({action: 'request.consul.del', key: sKey });
+                            oLogger.d('consul.kv', {command: 'del', key: sKey });
                         }
 
                         fCallback(oError);
@@ -191,7 +193,7 @@
                 break;
 
             default:
-                oLogger.e({action: 'request.consul.unknown_operation', key: sKey, type: oMessage.detail.operation});
+                oLogger.e('request.Notification', {handler: 'unknown', key: sKey, type: oMessage.detail.operation});
                 fCallback();
                 break;
         }
@@ -202,10 +204,13 @@
         let aBody    = [];
 
         oRequest.on('error', oError => {
-            oLogger.e({action: 'request.parse.error', error: {
-                name:    oError.name,
-                message: oError.message
-            }});
+            oLogger.e('request.parse', {
+                status: 'error',
+                error: {
+                    name:    oError.name,
+                    message: oError.message
+                }
+            });
 
             fCallback(oError);
         });
@@ -219,8 +224,8 @@
             try {
                 oBody = JSON.parse(Buffer.concat(aBody).toString());
             } catch (oError) {
-                oLogger.e({
-                    action:     'request.json_parse.error',
+                oLogger.e('request.json_parse', {
+                    status: 'error',
                     error:      {
                         name:    oError.name,
                         message: oError.message
@@ -253,8 +258,7 @@
         let sUrl     = oRequest.url;
 
         if (oHeaders && oHeaders['x-amz-sns-message-type'] === 'SubscriptionConfirmation') {
-            oLogger.d({
-                action: 'request.SubscriptionConfirmation',
+            oLogger.d('request.SubscriptionConfirmation', {
                 method: sMethod,
                 url:    sUrl,
                 id:     oHeaders['x-amz-sns-message-id'],
@@ -277,8 +281,7 @@
 
             return;
         } else if (oHeaders && oHeaders['x-amz-sns-message-type'] === 'Notification') {
-            oLogger.d({
-                action:         'request.Notification',
+            oLogger.d('request.Notification', {
                 method:         sMethod,
                 url:            sUrl,
                 id:             oHeaders['x-amz-sns-message-id'],
@@ -315,7 +318,7 @@
             oLogger.summary();
             return;
         } else {
-            oLogger.w({action: 'request.weird', method: sMethod, url: sUrl});
+            oLogger.w('request.weird', {method: sMethod, url: sUrl});
         }
 
         oResponse.writeHead(202, {'Content-Type': 'text/plain'});
@@ -325,16 +328,16 @@
     };
 
     const init = () => {
-        ConfigServerLogger.n({action: 'pre-sync', environment: ENVIRONMENT});
+        ConfigServerLogger.n('sync.start');
 
         // Download All App Configs and then Start the Server
         ParameterStore.objectFromPath(`/${ENVIRONMENT}`, (oError, oConfig) => {
             if (oError) {
-                ConfigServerLogger.e({action: 'sync.error', error: oError});
+                ConfigServerLogger.e('sync.error', {error: oError});
                 process.exit(1);
             }
 
-            ConfigServerLogger.n({action: 'sync', environment: ENVIRONMENT});
+            ConfigServerLogger.n('sync.ready');
 
             APPS   = Object.keys(oConfig).filter(sApp => sApp !== 'shared');
             SHARED = oConfig.shared;
@@ -350,14 +353,16 @@
             Object.keys(oSorted).map(sKey => {
                 consul.kv.set(sKey, oSorted[sKey], (oError, oResult) => {
                     if (oError) {
-                        ConfigServerLogger.e({action: 'sync.error', error: oError});
+                        ConfigServerLogger.e('sync.error', {error: oError});
                     }
                 });
             });
 
+            ConfigServerLogger.n('sync.done');
+
             http.createServer(handleHTTPRequest).listen(oConfig.ps2consul.server.port);
 
-            ConfigServerLogger.n({action: 'init', environment: ENVIRONMENT, apps: APPS});
+            ConfigServerLogger.n('init', {environment: ENVIRONMENT, apps: APPS});
             ConfigServerLogger.summary();
         });
     };
