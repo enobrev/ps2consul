@@ -1,6 +1,6 @@
     const consul         = require('consul')();
     const ParameterStore = require('aws-parameter-store').default;
-    const {Logger}       = require('winston-rsyslog-cee');
+    const {Logger}       = require('rsyslog-cee');
     const {
         flattenObject,
         sortObject

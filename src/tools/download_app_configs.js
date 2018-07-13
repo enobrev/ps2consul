@@ -35,6 +35,7 @@ ParameterStore.objectFromPath(`/${ENVIRONMENT}`, (oError, oConfig) => {
 
         const sFile      = `${PATH}/config.${sApp}.json`;
         const oAppConfig = DeepMerge.all([oShared, oConfig[sApp]]);
+
         fs.writeFileSync(sFile, JSON.stringify(oAppConfig, null, '    '));
         console.log(sFile);
     });
