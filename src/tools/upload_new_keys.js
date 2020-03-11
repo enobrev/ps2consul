@@ -9,7 +9,7 @@ const AWS_REGION     = process.env['AWS_REGION'];
 
 
 if (!fs.existsSync('./NEW_KEYS.json')) {
-    console.error('This script expects a file called NEW_KEYS.json, which should match the formatting of the output of download_whole_config.js');
+    console.error('This script expects a file called NEW_KEYS.json, which should match the formatting of the output of download_whole_aws_config.js');
     process.exit(1);
 }
 
