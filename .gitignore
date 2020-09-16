@@ -2,5 +2,6 @@
 node_modules
 NEW_KEYS*.json
 REMOVE_KEYS*.json
+DOWNLOAD_KEYS*.json
 CONFIG*.json
 AWS_CONFIG*.json
