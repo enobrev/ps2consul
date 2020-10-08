@@ -34,6 +34,33 @@ ParameterStore.mergePathsAsObject([
     const oFlattened = flattenObject(oConfig, '.');
     const oSorted    = sortObject(oFlattened);
     const sStringed  = JSON.stringify(oSorted, null, '    ');
+    const sFileJson  = `${PATH}/config.packer.json`;
 
-    fs.writeFileSync(`${PATH}/config.packer.json`, sStringed);
+    fs.writeFileSync(sFileJson, sStringed);
+
+    console.log(`Wrote ${sFileJson}`);
+
+    const oUnderscored = flattenObject(oConfig, '_');
+    const oUnderSorted = sortObject(oUnderscored);
+    const aOutput = Object.keys(oUnderSorted).map(sKey => {
+        const mValue = oUnderSorted[sKey];
+        let sValue;
+        if (mValue.indexOf("\n") > -1) {
+            sValue = "<<VALUE\n" + mValue + "\nVALUE"
+        } else {
+            sValue = isNaN(mValue) ? `"${mValue}"` : mValue;
+        }
+
+        let mCleanKey = sKey.replace(/\./g, '_');
+        if (/^[0-9]/.test(sKey)) {
+            mCleanKey = `_${mCleanKey}`;
+        }
+
+        return `${mCleanKey} = ${sValue}`
+    });
+    const sFileHcl  = `${PATH}/config.packer.hcl`;
+
+    fs.writeFileSync(sFileHcl, aOutput.join("\n"));
+
+    console.log(`Wrote ${sFileHcl}`);
 });
