@@ -48,7 +48,7 @@ ParameterStore.mergePathsAsObject([
         if (mValue.indexOf("\n") > -1) {
             sValue = "<<VALUE\n" + mValue + "\nVALUE"
         } else {
-            sValue = isNaN(mValue) ? `"${mValue}"` : mValue;
+            sValue = isNaN(mValue) || mValue.indexOf('+') === 0 ? `"${mValue}"` : mValue;
         }
 
         let mCleanKey = sKey.replace(/\./g, '_');
