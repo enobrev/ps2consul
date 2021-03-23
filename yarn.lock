@@ -421,6 +421,11 @@ sax@>=0.6.0:
   resolved "https://registry.yarnpkg.com/sax/-/sax-1.2.4.tgz#2816234e2378bddc4e5354fab5caa895df7100d9"
   integrity sha512-NqVDv9TpANUjFm0N8uM5GxL36UgKi9/atZw+x7YFnQ8ckwFGKrl4xX4yWtrey3UJm5nP1kUbnYgLopqWNSRhWw==
 
+simple-rate-limiter@^0.2.3:
+  version "0.2.3"
+  resolved "https://registry.yarnpkg.com/simple-rate-limiter/-/simple-rate-limiter-0.2.3.tgz#306466faff17e1f22ee758b0a37cd453e8351b41"
+  integrity sha1-MGRm+v8X4fIu51iwo3zUU+g1G0E=
+
 slack-node@0.1.8:
   version "0.1.8"
   resolved "https://registry.yarnpkg.com/slack-node/-/slack-node-0.1.8.tgz#cda98de8681485b301dc6742ddc3897117fad349"

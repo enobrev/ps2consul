@@ -4,6 +4,7 @@
     const async          = require('async');
     const consul         = require('consul')();
     const DeepMerge      = require('deepmerge');
+    const rateLimit      = require("simple-rate-limiter");
     const ParameterStore = require('aws-parameter-store').default;
     const {Logger}       = require('rsyslog-cee');
     const {
@@ -331,9 +332,11 @@
         ConfigServerLogger.n('sync.start');
 
         // Download All App Configs and then Start the Server
+        ConfigServerLogger.d('sync.objectFromPath', {state: 'start'});
         ParameterStore.objectFromPath(`/${ENVIRONMENT}`, (oError, oConfig) => {
+            ConfigServerLogger.d('sync.objectFromPath', {state: 'done'});
             if (oError) {
-                ConfigServerLogger.e('sync.error', {error: oError});
+                ConfigServerLogger.e('sync.error', {state: 'ps', error: oError});
                 process.exit(1);
             }
 
@@ -350,13 +353,16 @@
             const oFlattened = flattenObject(oMergedConfig);
             const oSorted    = sortObject(oFlattened);
 
-            Object.keys(oSorted).map(sKey => {
-                consul.kv.set(sKey, oSorted[sKey], (oError, oResult) => {
+            const rateLimited = rateLimit((sKey, mValue) => {
+                consul.kv.set(sKey, mValue, oError => {
                     if (oError) {
-                        ConfigServerLogger.e('sync.error', {error: oError});
+                        ConfigServerLogger.e('sync.error', {state: 'consul.error', error: oError});
+                        process.exit(1);
                     }
                 });
-            });
+            }).to(1).per(5); // Some trial and error here, got me to 200 per second or 1 per 5ms
+
+            Object.keys(oSorted).map(sKey => rateLimited(sKey, oSorted[sKey]));
 
             ConfigServerLogger.n('sync.done');
 

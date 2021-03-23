@@ -17,6 +17,7 @@
     "consul": "^0.37.0",
     "deepmerge": "^4.2.2",
     "rsyslog-cee": "^0.2.13",
+    "simple-rate-limiter": "^0.2.3",
     "slack-node": "0.1.8"
   }
 }
