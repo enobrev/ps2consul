@@ -12,7 +12,7 @@
     "download_app_config": "src/tools/download_app_config.js"
   },
   "dependencies": {
-    "async": "^3.2.0",
+    "async": "^3.2.2",
     "aws-parameter-store": "0.1.1",
     "consul": "^0.37.0",
     "deepmerge": "^4.2.2",
